@@ -1,0 +1,79 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: '1xPaly BD',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: LoginScreen(),
+    );
+  }
+}
+
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  TextEditingController phone = TextEditingController();
+  TextEditingController password = TextEditingController();
+  String apiUrl = "http://10.0.2.2:5000"; // পরে তোমার Server IP দিবা
+
+  Future login() async {
+    try {
+      var res = await http.post(
+        Uri.parse("$apiUrl/login"),
+        body: {"phone": phone.text, "password": password.text}
+      );
+      if(res.statusCode == 200){
+        Navigator.push(context, MaterialPageRoute(builder: (_) => HomeScreen()));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Failed")));
+      }
+    } catch(e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Server Error")));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("1xPaly BD Login")),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TextField(controller: phone, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: "Phone Number")),
+            SizedBox(height: 10),
+            TextField(controller: password, obscureText: true, decoration: InputDecoration(labelText: "Password")),
+            SizedBox(height: 20),
+            ElevatedButton(onPressed: login, child: Text("Login"))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Dashboard")), 
+      body: Center(child: Text("Welcome to 1xPaly BD"))
+    );
+  }
+}
