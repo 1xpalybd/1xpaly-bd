@@ -1,1 +1,1 @@
-# 1xpaly-bd
+# xpaly-bd
